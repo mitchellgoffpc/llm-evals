@@ -8,6 +8,7 @@ from ask.query import query
 from ask.models import MODELS
 from strategies.whole_file import WHOLE_FILE_SYSTEM_PROMPT, whole_file_strategy
 from strategies.unified_diff import UNIFIED_DIFF_SYSTEM_PROMPT, unified_diff_strategy
+from strategies.partial_file import PARTIAL_FILE_SYSTEM_PROMPT, partial_file_strategy
 
 # ANSI color codes
 RED = '\033[91m'
@@ -17,8 +18,9 @@ RESET = '\033[0m'
 
 MODEL_SHORTCUTS = {s: model for model in MODELS for s in [model.name, *model.shortcuts]}
 STRATEGIES = {
-    'whole_file': (WHOLE_FILE_SYSTEM_PROMPT, whole_file_strategy),
-    'unified_diff': (UNIFIED_DIFF_SYSTEM_PROMPT, unified_diff_strategy)
+    'wholefile': (WHOLE_FILE_SYSTEM_PROMPT, whole_file_strategy),
+    'udiff': (UNIFIED_DIFF_SYSTEM_PROMPT, unified_diff_strategy),
+    'partfile': (PARTIAL_FILE_SYSTEM_PROMPT, partial_file_strategy),
 }
 
 def print_diff(expected, actual, from_file, to_file):
@@ -91,7 +93,7 @@ def run_tests(model, strategy, test_cases_to_run=None):
                 raise ValueError(f"No prompt found for test {test_case.name}.{output_name}")
 
             prompt = f"```\n{input_content}\n```\n\n{prompt}"
-            response = ''.join(query(prompt, model))
+            response = ''.join(query(prompt, model, system_prompt=system_prompt))
             response = extract_code_block(response)
             response = process_response(input_content, response)
 
@@ -108,7 +110,7 @@ def run_tests(model, strategy, test_cases_to_run=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run test cases for the project.")
     parser.add_argument('-m', '--model', choices=MODEL_SHORTCUTS.keys(), help="Name or shortcut of the model to use")
-    parser.add_argument('-s', '--strategy', choices=STRATEGIES.keys(), default='whole_file', help="Strategy to process model response")
+    parser.add_argument('-s', '--strategy', choices=STRATEGIES.keys(), default='wholefile', help="Strategy to process model response")
     parser.add_argument('test_cases', nargs='*', help="Names of specific test cases to run")
     args = parser.parse_args()
 
