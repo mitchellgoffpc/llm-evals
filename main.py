@@ -6,8 +6,8 @@ import difflib
 from pathlib import Path
 from ask.query import query
 from ask.models import MODELS
-from strategies.whole_file_strategy import whole_file_strategy
-from strategies.unified_diff_strategy import unified_diff_strategy
+from strategies.whole_file import WHOLE_FILE_SYSTEM_PROMPT, whole_file_strategy
+from strategies.unified_diff import UNIFIED_DIFF_SYSTEM_PROMPT, unified_diff_strategy
 
 # ANSI color codes
 RED = '\033[91m'
@@ -16,6 +16,10 @@ YELLOW = '\033[93m'
 RESET = '\033[0m'
 
 MODEL_SHORTCUTS = {s: model for model in MODELS for s in [model.name, *model.shortcuts]}
+STRATEGIES = {
+    'whole_file': (WHOLE_FILE_SYSTEM_PROMPT, whole_file_strategy),
+    'unified_diff': (UNIFIED_DIFF_SYSTEM_PROMPT, unified_diff_strategy)
+}
 
 def print_diff(expected, actual, from_file, to_file):
     expected_lines = expected.splitlines(keepends=True)
@@ -57,6 +61,7 @@ def run_tests(model, strategy, test_cases_to_run=None):
             print(f"No matching test cases found for the provided names.")
             sys.exit(1)
 
+    system_prompt, process_response = STRATEGIES[strategy]
     total_tests = 0
     passed_tests = 0
 
@@ -88,7 +93,7 @@ def run_tests(model, strategy, test_cases_to_run=None):
             prompt = f"```\n{input_content}\n```\n\n{prompt}"
             response = ''.join(query(prompt, model))
             response = extract_code_block(response)
-            response = strategy(response)
+            response = process_response(input_content, response)
 
             if response == output_content:
                 print(f"{GREEN}Test case {test_case.name}.{output_name} passed.{RESET}")
@@ -103,9 +108,8 @@ def run_tests(model, strategy, test_cases_to_run=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run test cases for the project.")
     parser.add_argument('-m', '--model', choices=MODEL_SHORTCUTS.keys(), help="Name or shortcut of the model to use")
-    parser.add_argument('-s', '--strategy', choices=['whole_file', 'unified_diff'], default='whole_file', help="Strategy to process model response")
+    parser.add_argument('-s', '--strategy', choices=STRATEGIES.keys(), default='whole_file', help="Strategy to process model response")
     parser.add_argument('test_cases', nargs='*', help="Names of specific test cases to run")
     args = parser.parse_args()
 
-    strategy = whole_file_strategy if args.strategy == 'whole_file' else unified_diff_strategy
-    run_tests(MODEL_SHORTCUTS[args.model], strategy, args.test_cases)
+    run_tests(MODEL_SHORTCUTS[args.model], args.strategy, args.test_cases)
