@@ -1,0 +1,7 @@
+{
+    "rm_scale_shift_norm": {
+        "input": "input.py",
+        "output": "output_rm_scale_shift_norm.py",
+        "prompt": "Modify this file to remove the `use_scale_shift_norm` arg and all of the associated logic."
+    }
+}

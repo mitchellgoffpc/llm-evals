@@ -1,0 +1,12 @@
+{
+    "fix_indentation": {
+        "input": "input_mycelium.java",
+        "output": "output_mycelium_fix_indentation.java",
+        "prompt": "Modify this file to remove all the document comments and convert everything to Kernighan & Ritchie indentation."
+    },
+    "change_burning": {
+        "input": "input_skeleton.java",
+        "output": "output_skeleton_change_burning.java",
+        "prompt": "Modify this file to change the burning logic so the skeleton doesn't take burn damage until the brighness is above 0.6."
+    }
+}

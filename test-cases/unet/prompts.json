@@ -1,3 +1,0 @@
-{
-    "rm_scale_shift_norm": "Modify this file to remove the `use_scale_shift_norm` arg and all of the associated logic."
-}

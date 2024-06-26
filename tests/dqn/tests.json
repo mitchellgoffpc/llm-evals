@@ -1,0 +1,7 @@
+{
+    "rename_obs_space": {
+        "input": "input.py",
+        "output": "output_rename_obs_space.py",
+        "prompt": "Modify this file to rename observation_space to obs_space"
+    }
+}
